@@ -122,7 +122,7 @@ def sortResults(alternatives, siw):
     for i in range(len(alternatives)):
         sortedRes.append([alternatives[i], siw[i]])
     
-    sorted(sortedRes, reverse=True, key=lambda x:x[1])
+    sortedRes=sorted(sortedRes, reverse=True, key=lambda x:x[1])
     return sortedRes
 
 def printResults(sortedRes):
