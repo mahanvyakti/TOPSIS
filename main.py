@@ -221,7 +221,7 @@ def calculate_similarity(dib, diw):
         -------
         'siw': similarity values for each alternative
     """
-    return [(dib[i]/(dib[i]+diw[i])) for i in range(len(dib))]
+    return [(diw[i]/(dib[i]+diw[i])) for i in range(len(dib))]
 
 def sortResults(alternatives, siw):
     """
