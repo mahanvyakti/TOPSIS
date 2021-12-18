@@ -2,7 +2,8 @@ import math
 matrix, weights, beneficial  = [], [], []
 
 def create_matrix():
-    """Accepts alternatives and criteria from the user
+    """
+    Accepts alternatives and criteria from the user
         and creates the corresponding matrix.
         
         Parameters:
@@ -28,12 +29,33 @@ def create_matrix():
     return alternatives, criteria
 
 def get_weigths(criteria):
+    """Accepts weights for all the criterion from the user.
+        
+        Parameters:
+        ------- 
+            `criteria`: list of names of criteria
+
+        Returns:
+        -------
+            none
+    """
     print("\nEnter weights:")
     for criterion in criteria:
         weight = float(input("Enter weight for " + criterion + "\t"))
         weights.append(weight)
 
 def get_b_or_nb(criteria):
+    """Accepts whether each criteria is beneficial or non-beneficial
+      from the user.
+        
+        Parameters:
+        ------- 
+            `criteria`: list of names of criteria
+
+        Returns:
+        -------
+            none
+    """
     print("\n\nEnter if a criterion is beneficial or non-benficial")
     print("Enter y if benficial, n if not.")
     for criterion in criteria:
@@ -49,6 +71,18 @@ def get_b_or_nb(criteria):
                 print("Please enter y or n!!")
 
 def get_inputs():
+    """
+        Combines all the input functons in one.
+        
+        Parameters:
+        ------- 
+            none
+
+        Returns:
+        -------
+        `alternatives`: list of names of alternatives
+        `criteria`: list of names of criteria
+    """
     alternatives, criteria = create_matrix()
     get_weigths(criteria)
     get_b_or_nb(criteria)
@@ -56,7 +90,20 @@ def get_inputs():
     return alternatives, criteria
 
 def normalize_matrix(alternatives, criteria):
-    # Column-wise normalization
+    """
+        Performs Column-wise normalization of the input
+        matrix created.
+        Normalized Value= Original Value/root square sum of all column values
+       
+        Parameters:
+        ------- 
+        `alternatives`: list of names of alternatives
+        `criteria`: list of names of criteria
+
+        Returns:
+        -------
+        'normalized_matrix': Matrix containing all the normalized values
+    """
     root_squared_sums = [] 
 
     for crit_index in range(len(criteria)):
@@ -76,6 +123,20 @@ def normalize_matrix(alternatives, criteria):
     return normalized_matrix
 
 def weighted_normalization(normalized_matrix):
+    """
+        Performs Multiplication of each normalized value 
+        with its corresponding criteria weight.
+        
+        Parameters:
+        ------- 
+        `alternatives`: list of names of alternatives
+        `criteria`: list of names of criteria
+
+        Returns:
+        -------
+        'weight_normalized_matrix': Matrix formed after multiplication 
+                                    of values and weight
+    """
     weight_normalized_matrix = []
     
     for row in normalized_matrix:
@@ -89,6 +150,22 @@ def weighted_normalization(normalized_matrix):
     return weight_normalized_matrix
 
 def get_best_and_worst_alteratives(wt_norm_matrix):
+    """
+      Selects j_plus and j_minus values  for each criteria depending 
+      on whether it is beneficial or non-beneficial.
+      For Beneficial: j_plus= max value; j_minus= min value
+      For Non-Beneficial: j_plus= min value; j_minus= max value
+       
+        Parameters:
+        ------- 
+        'weight_normalized_matrix': Matrix formed after multiplication 
+                                    of values and weight
+
+        Returns:
+        -------
+        'j_plus': list of all j_plus of each criteria depending on beneficial or non-beneficial
+        'j_minus': list of all j_minus of each criteria depending on beneficial or non-beneficial
+    """
     new_matrix = list(zip(*wt_norm_matrix)) # Take transpose
     j_plus, j_minus = [], []
 
@@ -102,7 +179,24 @@ def get_best_and_worst_alteratives(wt_norm_matrix):
     return j_plus, j_minus
 
 def get_l2_distances(wt_norm_matrix, j_plus, j_minus):
-    diw, dib = [], []
+
+    """
+      Calculates distance from best solution and distance from worst solution
+      for each alternative.
+       
+        Parameters:
+        ------- 
+        'weight_normalized_matrix': Matrix formed after multiplication 
+                                    of values and weight
+        'j_plus': list of all j_plus of each criteria depending on beneficial or non-beneficial
+        'j_minus': list of all j_minus of each criteria depending on beneficial or non-beneficial
+
+        Returns:
+        -------
+        'dib': distance from best value for each alternative
+        'diw': distance from worst value for each alternative
+    """
+    diw, dib = [], []   
     for row in wt_norm_matrix:
         best_diff_sum, worst_diff_sum = 0, 0
         for (crit_index, value) in enumerate(row):
@@ -111,21 +205,57 @@ def get_l2_distances(wt_norm_matrix, j_plus, j_minus):
         
         dib.append(math.sqrt(best_diff_sum))
         diw.append(math.sqrt(worst_diff_sum))
-
+ 
     return dib ,diw
 
 def calculate_similarity(dib, diw):
+    """
+      Calculates similarity with best value for each alternative.
+       
+        Parameters:
+        ------- 
+        'dib': distance from best value for each alternative
+        'diw': distance from worst value for each alternative
+
+        Returns:
+        -------
+        'siw': similarity values for each alternative
+    """
     return [(dib[i]/(dib[i]+diw[i])) for i in range(len(dib))]
 
 def sortResults(alternatives, siw):
+    """
+      Sorts the Alternatives with respect to corresponding siw values in reverse order.
+       
+        Parameters:
+        ------- 
+        `alternatives`: list of names of alternatives
+        'siw': similarity values for each alternative
+
+        Returns:
+        -------
+       'sortedRes': Sorted List of Alternatives and siw values
+    """
     sortedRes = []
     for i in range(len(alternatives)):
         sortedRes.append([alternatives[i], siw[i]])
     
-    sortedRes=sorted(sortedRes, reverse=True, key=lambda x:x[1])
+    sortedRes=sorted(sortedRes, reverse=True,  key=lambda x:x[1])
+
     return sortedRes
 
 def printResults(sortedRes):
+    """
+      Prints the sorted list with corresponding ranking
+       
+        Parameters:
+        ------- 
+       'sortedRes': Sorted List of Alternatives and siw values
+
+        Returns:
+        -------
+        none
+    """
     print("\nThe Ranking:")
     print("Sr. No.\t\tAlternative\tsiw")
     for (index, name_siw_pair) in enumerate(sortedRes):
